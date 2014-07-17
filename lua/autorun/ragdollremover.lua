@@ -4,12 +4,10 @@
 local freezespeed = 500
 local removespeed = 4000
 
-local function corpse_identify( corpse )
-        if ( corpse ) then
-                local ply = player.GetByUniqueID( corpse.uqid )
-                ply:SetNWBool( "body_found", true )
-                CORPSE.SetFound( corpse, true )
-        end
+if ( GAMEMODE_NAME == "terrortown" ) then
+        local IsTTT = true
+else
+        local IsTTT = false
 end
 
 hook.Add( "Think", "CrashCatcher", function()
@@ -21,10 +19,10 @@ hook.Add( "Think", "CrashCatcher", function()
                                         ent:Remove()
                                         ServerLog( "[!CRASHCATCHER!] Caught ragdoll entity moving too fast (" .. velo .. "), removing offending ragdoll entity from world.\n" )
                                         local messageToShow = "[!CRASHCATCHER!] A ragdoll was removed to prevent server crashing. It was "
-                                        if ( CORPSE.GetFound(ent, true) ) then
+                                        PrintMessage( HUD_PRINTTALK, messageToShow .. ent:GetNWString( "nick" ) .. "'s body." )
+                                        if ( CORPSE.GetFound( ent, true ) and IsTTT ) then
                                                 corpse_identify( ent )
                                         end
-                                        PrintMessage( HUD_PRINTTALK, messageToShow .. ent:GetNWString( "nick" ) .. "'s body." )
                                 elseif velo >= freezespeed then
                                         KillVelocity( ent )
                                         ServerLog( "[!CRASHCATCHER!] Caught ragdoll entity moving too fast (" .. velo .. "), disabling motion. \n" )
@@ -42,7 +40,9 @@ local function SetSubPhysMotionEnabled( ent, enable )
         if ( not enable ) then
                 ent:SetColor( Color( 255, 0, 255, 255 ) )
                 if IsValid( ent:GetOwner() ) then
-                        ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
+                        if ( IsTTT ) then
+                                ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
+                        end
                 end
         else
                 ent:SetColor( Color( 255, 255, 255, 255 ) )
@@ -66,7 +66,15 @@ local function SetSubPhysMotionEnabled( ent, enable )
        
 end
  
-local function AMB_KillVelocity( ent )
+local function KillVelocity( ent )
    SetSubPhysMotionEnabled( ent, false )
    timer.Simple( 3, function() SetSubPhysMotionEnabled( ent, true ) end )
+end
+
+local function corpse_identify( corpse )
+        if ( corpse and IsTTT ) then
+                local ply = player.GetByUniqueID( corpse.uqid )
+                ply:SetNWBool( "body_found", true )
+                CORPSE.SetFound( corpse, true )
+        end
 end
