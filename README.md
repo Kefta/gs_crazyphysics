@@ -1,4 +1,7 @@
 Ragdoll-Remover
 ===============
 
-DarthTealc's script to fix the ragdoll crash on TTT. Uploaded it to Github because it kept getting taken down on Pastebin.
+Original author: Ambro
+Modifiers: DarthTealc and code_gs
+
+Ragdoll crash fixer for TTT.
