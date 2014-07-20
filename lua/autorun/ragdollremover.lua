@@ -77,6 +77,6 @@ local function CatchCrash()
                         end
                 end
         end
-end )
+end
 
 hook.Add( "Think", "CrashCatcher", CatchCrash )
