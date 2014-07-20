@@ -67,7 +67,7 @@ local function CatchCrash()
                                         ServerLog( "[!CRASHCATCHER!] Caught ragdoll entity moving too fast (" .. velo .. "), removing offending ragdoll entity from world.\n" )
                                         local messageToShow = "[!CRASHCATCHER!] A ragdoll was removed to prevent server crashing. It was "
                                         PrintMessage( HUD_PRINTTALK, messageToShow .. ent:GetNWString( "nick" ) .. "'s body." )
-                                        if ( CORPSE.GetFound( ent, true ) and IsTTT ) then
+                                        if ( IsTTT and CORPSE.GetFound( ent, true ) ) then
                                                 IdentifyCorpse( ent )
                                         end
                                 elseif velo >= freezespeed then
