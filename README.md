@@ -1,7 +1,6 @@
 Ragdoll-Remover
 ===============
 
-Original author: Ambro
-Modifiers: DarthTealc and code_gs
+Ragdoll crash fixer for TTT and any other gamemode.
 
-Ragdoll crash fixer for TTT.
+By Ambro, DarthTealc, and code_gs
