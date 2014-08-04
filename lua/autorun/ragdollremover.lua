@@ -1,8 +1,15 @@
+-- Ragdoll Crash Catcher for TTT and any other gamemode
 -- By Ambro, DarthTealc, and code_gs
 -- Run shared (lua/autorun)
 
-local freezespeed = 500
-local removespeed = 4000
+-- Config
+local EchoFreeze = true         -- Tell players when a body is frozen
+local EchoRemove = true         -- Tell players when a body is removed
+
+local FreezeSpeed = 500         -- Velocity ragdoll is frozen at
+local RemoveSpeed = 4000        -- Velocity ragdoll is removed at
+
+local FreezeTime = 3            -- Time body is frozen for
 
 if ( GAMEMODE_NAME == "terrortown" ) then
         local IsTTT = true
@@ -12,9 +19,9 @@ end
  
 local function SetSubPhysMotionEnabled( ent, enable )
         if not IsValid( ent ) then return end
-   
+	
         ent:SetVelocity( vector_origin )
-       
+	
         if ( not enable ) then
                 ent:SetColor( Color( 255, 0, 255, 255 ) )
                 if IsValid( ent:GetOwner() ) then
@@ -25,7 +32,7 @@ local function SetSubPhysMotionEnabled( ent, enable )
         else
                 ent:SetColor( Color( 255, 255, 255, 255 ) )
         end
- 
+	
         for i = 0, ent:GetPhysicsObjectCount() - 1 do
                 local subphys = ent:GetPhysicsObjectNum( i )
                 if IsValid( subphys ) then
@@ -38,15 +45,24 @@ local function SetSubPhysMotionEnabled( ent, enable )
                                 subphys:Wake()
                         end
                 end
-        end
-       
+	end
+
         ent:SetVelocity( vector_origin )
-       
 end
  
 local function KillVelocity( ent )
-   SetSubPhysMotionEnabled( ent, false )
-   timer.Simple( 3, function() SetSubPhysMotionEnabled( ent, true ) end )
+	SetSubPhysMotionEnabled( ent, false )
+	
+	if ( EchoFreeze ) then 
+		PrintMessage( HUD_PRINTTALK, "[GS_CRASH] Body frozen for " .. FreezeTime .. " seconds!" ) 
+	end
+	
+	timer.Simple( FreezeTime, function() 
+		SetSubPhysMotionEnabled( ent, true )
+		if ( EchoFreeze ) then 
+			PrintMessage( HUD_PRINTTALK, "[GS_CRASH] Body unfrozen!" )
+		end
+	end )
 end
 
 local function IdentifyCorpse( corpse )
@@ -57,26 +73,29 @@ local function IdentifyCorpse( corpse )
         end
 end
 
-local function CatchCrash()
+function GS_CrashCatch()
         for k, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
                 if ( IsValid( ent ) ) then
                         if ( ent.player_ragdoll ) then
                                 local velo = ent:GetVelocity():Length()
-                                if ( velo >= removespeed ) then
+				local nick = ent:GetNWString( "nick" )
+                                if ( velo >= RemoveSpeed ) then
                                         ent:Remove()
-                                        ServerLog( "[!CRASHCATCHER!] Caught ragdoll entity moving too fast (" .. velo .. "), removing offending ragdoll entity from world.\n" )
-                                        local messageToShow = "[!CRASHCATCHER!] A ragdoll was removed to prevent server crashing. It was "
-                                        PrintMessage( HUD_PRINTTALK, messageToShow .. ent:GetNWString( "nick" ) .. "'s body." )
+					local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
+                                        ServerLog( message .. " (" .. velo .. ")\n" )
+					if ( EchoRemove ) then
+						PrintMessage( HUD_PRINTTALK, message )
+					end
                                         if ( IsTTT and CORPSE.GetFound( ent, true ) ) then
                                                 IdentifyCorpse( ent )
                                         end
-                                elseif velo >= freezespeed then
+                                elseif ( velo >= FreezeSpeed ) then
                                         KillVelocity( ent )
-                                        ServerLog( "[!CRASHCATCHER!] Caught ragdoll entity moving too fast (" .. velo .. "), disabling motion. \n" )
+                                        ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
                                 end
                         end
                 end
         end
 end
 
-hook.Add( "Think", "CrashCatcher", CatchCrash )
+hook.Add( "Think", "GS_CrashCatcher", GS_CrashCatch )
