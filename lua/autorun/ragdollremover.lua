@@ -75,27 +75,24 @@ end
 
 function GS_CrashCatch()
         for k, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
-                if ( IsValid( ent ) ) then
-                        if ( ent.player_ragdoll ) then
-                                local velo = ent:GetVelocity():Length()
-				local nick = ent:GetNWString( "nick" )
-                                if ( velo >= RemoveSpeed ) then
-                                        ent:Remove()
-					local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
-                                        ServerLog( message .. " (" .. velo .. ")\n" )
-					if ( EchoRemove ) then
-						PrintMessage( HUD_PRINTTALK, message )
-					end
-                                        if ( IsTTT and CORPSE.GetFound( ent, true ) ) then
-                                                IdentifyCorpse( ent )
-                                        end
-                                elseif ( velo >= FreezeSpeed ) then
-                                        KillVelocity( ent )
-                                        ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
+                if ( IsValid( ent ) and ent.player_ragdoll ) then
+                        local velo = ent:GetVelocity():Length()
+			local nick = ent:GetNWString( "nick" )
+                        if ( velo >= RemoveSpeed ) then
+                                ent:Remove()
+				local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
+                                ServerLog( message .. " (" .. velo .. ")\n" )
+				if ( EchoRemove ) then
+					PrintMessage( HUD_PRINTTALK, message )
+				end
+                                if ( IsTTT ) then
+                                	CORPSE.SetFound( ent, true )
                                 end
+                        elseif ( velo >= FreezeSpeed ) then
+                                KillVelocity( ent )
+                                ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
                         end
                 end
         end
 end
-
 hook.Add( "Think", "GS_CrashCatcher", GS_CrashCatch )
