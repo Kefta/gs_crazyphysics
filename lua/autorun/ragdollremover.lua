@@ -66,11 +66,15 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( corpse )
-        if ( corpse and IsTTT ) then
-                local ply = player.GetByUniqueID( corpse.uqid )
-                ply:SetNWBool( "body_found", true )
-                CORPSE.SetFound( corpse, true )
-        end
+        if not ( corpse ) then return end
+	local dti = CORPSE.dti
+	local ply = corpse:GetDTEntity( dti.ENT_PLAYER )
+	if not IsValid( ply ) then
+		ply = rag:GetNWString("nick", default)
+	end
+	if not IsValid( ply ) then return end
+	ply:SetNWBool( "body_found", true )
+	CORPSE.SetFound( corpse, true )
 end
 
 function GS_CrashCatch()
@@ -86,7 +90,7 @@ function GS_CrashCatch()
 					PrintMessage( HUD_PRINTTALK, message )
 				end
                                 if ( IsTTT ) then
-                                	CORPSE.SetFound( ent, true )
+                                	IdentifyCorpse( ent )
                                 end
                         elseif ( velo >= FreezeSpeed ) then
                                 KillVelocity( ent )
