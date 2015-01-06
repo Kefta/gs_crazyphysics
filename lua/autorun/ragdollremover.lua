@@ -16,7 +16,6 @@ local IsTTT = false
 hook.Add("InitPostEntity","CheckForTTT", function() -- This is something I'm not quite sure about, but we may run into an issue that when the file is loaded the TTT gamemode hasn't been loaded. This insures that we check after everything has been loaded.
 	IsTTT = GAMEMODE_NAME == "terrortown" and true or false
 end)
-IsTTT = GAMEMODE_NAME == "terrortown" and true or false
  
 local entMeta = FindMetaTable("Entity") -- Why? Both ways work but I think the looks cleaner :P
 
