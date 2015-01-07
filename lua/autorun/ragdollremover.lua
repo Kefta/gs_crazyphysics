@@ -1,5 +1,5 @@
 -- Ragdoll Crash Catcher for TTT and any other gamemode
--- By Ambro, DarthTealc, and code_gs
+-- By Ambro, DarthTealc, TheEMP, and code_gs
 -- Run shared (lua/autorun)
 
 -- Config
@@ -116,7 +116,7 @@ function GS_CrashCatch()
         for k, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
                 if ( IsValid( ent ) and ent.player_ragdoll ) then
                         local velo = ent:GetVelocity():Length()
-			local nick = ent:GetNWString( "nick" )
+			local nick = ent:GetNWString( "nick", "N/A" )
                         if ( velo >= RemoveSpeed ) then
                                 ent:Remove()
 				local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
