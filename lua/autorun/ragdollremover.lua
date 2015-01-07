@@ -17,7 +17,9 @@ local bodyfound = false
 hook.Add( "Initialize", "GS_CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" ) then 
 		IsTTT = true 
-		bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool()
+		if ( IsValid( GetConVar( "ttt_announce_body_found" ) ) ) then
+                        bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool() or 1
+                end
 	end
 end )
  
@@ -26,7 +28,7 @@ local function SetSubPhysMotionEnabled( ent, enable )
 	
         if ( not enable ) then
                 ent:SetColor( Color( 255, 0, 255, 255 ) )
-                if ( IsTTT and IsValid( ent:GetOwner() ) then
+                if ( IsTTT and IsValid( ent:GetOwner() ) ) then
                 	ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
                 end
         else
