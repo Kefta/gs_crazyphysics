@@ -79,7 +79,7 @@ local function IdentifyCorpse( ent )
         
 	local dti = CORPSE.dti
 	local ply = ent:GetDTEntity( dti.ENT_PLAYER )
-	local nick = CORPSE.GetPlayerNick( ent, "" )
+	local nick = CORPSE.GetPlayerNick( ent, "N/A" )
 	local role = ent.was_role
 	
 	if ( IsValid( ply ) ) then
