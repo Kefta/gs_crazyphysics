@@ -18,7 +18,9 @@ hook.Add( "Initialize", "GS_CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" ) then 
 		IsTTT = true 
 		if ( IsValid( GetConVar( "ttt_announce_body_found" ) ) ) then
-                        bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool() or 1
+                        bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool() or true
+                else
+                        bodyfound = true
                 end
 	end
 end )
