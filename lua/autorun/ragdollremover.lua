@@ -10,8 +10,9 @@ local FreezeSpeed = 500         -- Velocity ragdoll is frozen at
 local RemoveSpeed = 4000        -- Velocity ragdoll is removed at
 
 local FreezeTime = 3            -- Time body is frozen for
+-- End config
 
-local IsTTT = false
+local IsTTT = false             -- Change to true if the name of your TTT folder is not terrortown, otherwise, leave it false
 local bodyfound = false 
 
 hook.Add( "Initialize", "GS_CheckTTT", function()
