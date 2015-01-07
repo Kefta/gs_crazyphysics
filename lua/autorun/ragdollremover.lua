@@ -74,13 +74,13 @@ local function KillVelocity( ent )
 	end )
 end
 
-local function IdentifyCorpse( corpse )
-        if ( not IsValid( corpse ) or CORPSE.GetFound( corpse, true ) ) then return end
+local function IdentifyCorpse( ent )
+        if ( not IsValid( ent ) or CORPSE.GetFound( ent, true ) ) then return end
         
 	local dti = CORPSE.dti
-	local ply = corpse:GetDTEntity( dti.ENT_PLAYER )
-	local nick = CORPSE.GetPlayerNick( corpse, "" )
-	local role = CORPSE.was_role
+	local ply = ent:GetDTEntity( dti.ENT_PLAYER )
+	local nick = CORPSE.GetPlayerNick( ent, "" )
+	local role = ent.was_role
 	
 	if ( IsValid( ply ) ) then
 		ply:SetNWBool( "body_found", true )
@@ -91,7 +91,6 @@ local function IdentifyCorpse( corpse )
 	
 	if ( bodyfound ) then
 		local roletext = nil
-		local role = CORPSE.was_role
 		if ( role == ROLE_TRAITOR ) then
 			roletext = "body_found_t"
 		elseif ( role == ROLE_DETECTIVE ) then
@@ -104,13 +103,13 @@ local function IdentifyCorpse( corpse )
 		victim = nick,
 		role = LANG.Param( roletext ) } )
 	end
-	CORPSE.SetFound( corpse, true )
+	CORPSE.SetFound( ent, true )
 	
-	for k, vicid in pairs( corpse.kills ) do
+	for k, vicid in pairs( ent.kills ) do
 		
 		local vic = player.GetByUniqueID( vicid )
 		
-		if IsValid( vic ) and ( not vic:GetNWBool( "body_found", false ) ) then
+		if ( IsValid( vic ) and not vic:GetNWBool( "body_found", false ) ) then
 			LANG.Msg( "body_confirm", { finder = "The Server", victim = vic:Nick() } )
 			vic:SetNWBool( "body_found", true )
 		end
