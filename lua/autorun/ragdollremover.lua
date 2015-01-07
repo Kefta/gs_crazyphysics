@@ -11,23 +11,23 @@ local RemoveSpeed = 4000        -- Velocity ragdoll is removed at
 
 local FreezeTime = 3            -- Time body is frozen for
 
-if ( GAMEMODE_NAME == "terrortown" ) then
-        local IsTTT = true
-else
-        local IsTTT = false
-end
+local IsTTT = false
+local bodyfound = false 
+
+hook.Add( "Initialize", "GS_CheckTTT", function()
+	if ( GAMEMODE_NAME == "terrortown" ) then 
+		IsTTT = true 
+		bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool()
+	end
+end )
  
 local function SetSubPhysMotionEnabled( ent, enable )
-        if not IsValid( ent ) then return end
-	
-        ent:SetVelocity( vector_origin )
+        if ( not IsValid( ent ) ) then return end
 	
         if ( not enable ) then
                 ent:SetColor( Color( 255, 0, 255, 255 ) )
-                if IsValid( ent:GetOwner() ) then
-                        if ( IsTTT ) then
-                                ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
-                        end
+                if ( IsTTT and IsValid( ent:GetOwner() ) then
+                	ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
                 end
         else
                 ent:SetColor( Color( 255, 255, 255, 255 ) )
@@ -35,7 +35,7 @@ local function SetSubPhysMotionEnabled( ent, enable )
 	
         for i = 0, ent:GetPhysicsObjectCount() - 1 do
                 local subphys = ent:GetPhysicsObjectNum( i )
-                if IsValid( subphys ) then
+                if ( IsValid( subphys ) ) then
                         subphys:EnableMotion( enable )
                         if ( not enable ) then
                                 subphys:SetVelocity( vector_origin )
@@ -48,9 +48,13 @@ local function SetSubPhysMotionEnabled( ent, enable )
 	end
 
         ent:SetVelocity( vector_origin )
+        ent:SetLocalAngularVelocity( angle_zero )
+        
 end
  
 local function KillVelocity( ent )
+	if ( not IsValid( ent ) ) then return end
+	
 	SetSubPhysMotionEnabled( ent, false )
 	
 	if ( EchoFreeze ) then 
@@ -66,15 +70,46 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( corpse )
-        if not ( corpse ) then return end
+        if ( not IsValid( corpse ) or CORPSE.GetFound( corpse, true ) ) then return end
+        
 	local dti = CORPSE.dti
 	local ply = corpse:GetDTEntity( dti.ENT_PLAYER )
-	if not IsValid( ply ) then
-		ply = rag:GetNWString("nick", default)
+	local nick = CORPSE.GetPlayerNick( corpse, "" )
+	local role = CORPSE.was_role
+	
+	if ( IsValid( ply ) ) then
+		ply:SetNWBool( "body_found", true )
+		if ( role == ROLE_TRAITOR ) then
+			SendConfirmedTraitors( GetInnocentFilter( false ) )
+		end
 	end
-	if not IsValid( ply ) then return end
-	ply:SetNWBool( "body_found", true )
+	
+	if ( bodyfound ) then
+		local roletext = nil
+		local role = CORPSE.was_role
+		if ( role == ROLE_TRAITOR ) then
+			roletext = "body_found_t"
+		elseif ( role == ROLE_DETECTIVE ) then
+			roletext = "body_found_d"
+		elseif ( role == ROLE_INNOCENT ) then
+			roletext = "body_found_i"
+		end
+
+		LANG.Msg( "body_found", { finder = "The Server",
+		victim = nick,
+		role = LANG.Param( roletext ) } )
+	end
 	CORPSE.SetFound( corpse, true )
+	
+	for k, vicid in pairs( corpse.kills ) do
+		
+		local vic = player.GetByUniqueID( vicid )
+		
+		if IsValid( vic ) and ( not vic:GetNWBool( "body_found", false ) ) then
+			LANG.Msg( "body_confirm", { finder = "The Server", victim = vic:Nick() } )
+			vic:SetNWBool( "body_found", true )
+		end
+	end
 end
 
 function GS_CrashCatch()
@@ -92,6 +127,7 @@ function GS_CrashCatch()
                                 if ( IsTTT ) then
                                 	IdentifyCorpse( ent )
                                 end
+                                ent:Remove()
                         elseif ( velo >= FreezeSpeed ) then
                                 KillVelocity( ent )
                                 ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
