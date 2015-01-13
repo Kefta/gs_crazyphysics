@@ -75,12 +75,12 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( ent )
-        if ( not IsValid( ent ) or CORPSE.GetFound( ent, true ) ) then return end
+        if ( not IsValid( ent ) or not CORPSE or CORPSE.GetFound( ent, false ) ) then return end
         
 	local dti = CORPSE.dti
-	local ply = ent:GetDTEntity( dti.ENT_PLAYER )
-	local nick = CORPSE.GetPlayerNick( ent, "N/A" )
-	local role = ent.was_role
+	local ply = ent:GetDTEntity( dti.ENT_PLAYER ) or player.GetByUniqueID( ent.uqid )
+	local nick = CORPSE.GetPlayerNick( ent, nil ) or ply:Nick() or "N/A" 
+	local role = ent.was_role or ply:GetRole()
 	
 	if ( IsValid( ply ) ) then
 		ply:SetNWBool( "body_found", true )
@@ -103,6 +103,7 @@ local function IdentifyCorpse( ent )
 		victim = nick,
 		role = LANG.Param( roletext ) } )
 	end
+
 	CORPSE.SetFound( ent, true )
 	
 	for k, vicid in pairs( ent.kills ) do
@@ -122,16 +123,15 @@ function GS_CrashCatch()
                         local velo = ent:GetVelocity():Length()
 			local nick = ent:GetNWString( "nick", "N/A" )
                         if ( velo >= RemoveSpeed ) then
-                                ent:Remove()
-				local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
-                                ServerLog( message .. " (" .. velo .. ")\n" )
-				if ( EchoRemove ) then
-					PrintMessage( HUD_PRINTTALK, message )
-				end
                                 if ( IsTTT ) then
                                 	IdentifyCorpse( ent )
                                 end
                                 ent:Remove()
+                                local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
+                                ServerLog( message .. " (" .. velo .. ")\n" )
+                                if ( EchoRemove ) then
+					PrintMessage( HUD_PRINTTALK, message )
+				end
                         elseif ( velo >= FreezeSpeed ) then
                                 KillVelocity( ent )
                                 ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
