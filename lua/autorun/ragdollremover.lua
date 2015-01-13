@@ -1,62 +1,62 @@
 -- Ragdoll Crash Catcher for TTT and any other gamemode
 -- By Ambro, DarthTealc, TheEMP, and code_gs
--- Run shared (lua/autorun)
+-- Run shared (lua/autorun/)
 
 -- Config
-local EchoFreeze = true         -- Tell players when a body is frozen
-local EchoRemove = true         -- Tell players when a body is removed
+local EchoFreeze = true 	-- Tell players when a body is frozen
+local EchoRemove = true 	-- Tell players when a body is removed
 
-local FreezeSpeed = 500         -- Velocity ragdoll is frozen at
-local RemoveSpeed = 4000        -- Velocity ragdoll is removed at
+local FreezeSpeed = 500 	-- Velocity ragdoll is frozen at
+local RemoveSpeed = 4000 	-- Velocity ragdoll is removed at
 
-local FreezeTime = 3            -- Time body is frozen for
+local FreezeTime = 3 		-- Time body is frozen for
 -- End config
 
-local IsTTT = false             -- Change to true if the name of your TTT folder is not terrortown, otherwise, leave it false
-local bodyfound = false 
+local IsTTT = false 		-- Change to true if the name of your TTT folder is not terrortown, otherwise, leave it false
+local bodyfound = false
 
 hook.Add( "Initialize", "GS_CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" ) then 
 		IsTTT = true 
 		if ( IsValid( GetConVar( "ttt_announce_body_found" ) ) ) then
-                        bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool() or true
-                else
-                        bodyfound = true
-                end
+            bodyfound = GetConVar( "ttt_announce_body_found" ):GetBool() or true
+        else
+            bodyfound = true
+        end
 	end
 end )
- 
+
 local function SetSubPhysMotionEnabled( ent, enable )
-        if ( not IsValid( ent ) ) then return end
+    if ( not IsValid( ent ) ) then return end
 	
-        if ( not enable ) then
-                ent:SetColor( Color( 255, 0, 255, 255 ) )
-                if ( IsTTT and IsValid( ent:GetOwner() ) ) then
-                	ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
-                end
-        else
-                ent:SetColor( Color( 255, 255, 255, 255 ) )
+    if ( not enable ) then
+        ent:SetColor( Color( 255, 0, 255, 255 ) )
+        if ( IsTTT and IsValid( ent:GetOwner() ) ) then
+            ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
         end
+    else
+        ent:SetColor( Color( 255, 255, 255, 255 ) )
+    end
 	
-        for i = 0, ent:GetPhysicsObjectCount() - 1 do
-                local subphys = ent:GetPhysicsObjectNum( i )
-                if ( IsValid( subphys ) ) then
-                        subphys:EnableMotion( enable )
-                        if ( not enable ) then
-                                subphys:SetVelocity( vector_origin )
-                                subphys:SetMass( subphys:GetMass() * 20 )
-                        else
-                                subphys:SetMass( subphys:GetMass() / 20 )
-                                subphys:Wake()
-                        end
-                end
+    for i = 0, ent:GetPhysicsObjectCount() - 1 do
+        local subphys = ent:GetPhysicsObjectNum( i )
+        if ( IsValid( subphys ) ) then
+            subphys:EnableMotion( enable )
+            if ( not enable ) then
+                subphys:SetVelocity( vector_origin )
+                subphys:SetMass( subphys:GetMass() * 20 )
+            else
+                subphys:SetMass( subphys:GetMass() / 20 )
+                subphys:Wake()
+            end
+        end
 	end
 
-        ent:SetVelocity( vector_origin )
-        ent:SetLocalAngularVelocity( angle_zero )
-        
+    ent:SetVelocity( vector_origin )
+    ent:SetLocalAngularVelocity( angle_zero )
+    
 end
- 
+
 local function KillVelocity( ent )
 	if ( not IsValid( ent ) ) then return end
 	
@@ -75,7 +75,7 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( ent )
-        if ( not IsValid( ent ) or not CORPSE or CORPSE.GetFound( ent, false ) ) then return end
+    if ( not IsValid( ent ) or not CORPSE or CORPSE.GetFound( ent, false ) ) then return end
         
 	local dti = CORPSE.dti
 	local ply = ent:GetDTEntity( dti.ENT_PLAYER ) or player.GetByUniqueID( ent.uqid )
@@ -118,25 +118,25 @@ local function IdentifyCorpse( ent )
 end
 
 function GS_CrashCatch()
-        for k, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
-                if ( IsValid( ent ) and ent.player_ragdoll ) then
-                        local velo = ent:GetVelocity():Length()
+    for k, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
+        if ( IsValid( ent ) and ent.player_ragdoll ) then
+            local velo = ent:GetVelocity():Length()
 			local nick = ent:GetNWString( "nick", "N/A" )
-                        if ( velo >= RemoveSpeed ) then
-                                if ( IsTTT ) then
-                                	IdentifyCorpse( ent )
-                                end
-                                ent:Remove()
-                                local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
-                                ServerLog( message .. " (" .. velo .. ")\n" )
-                                if ( EchoRemove ) then
+            if ( velo >= RemoveSpeed ) then
+                if ( IsTTT ) then
+                    IdentifyCorpse( ent )
+                end
+                ent:Remove()
+                local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
+                ServerLog( message .. " (" .. velo .. ")\n" )
+                if ( EchoRemove ) then
 					PrintMessage( HUD_PRINTTALK, message )
 				end
-                        elseif ( velo >= FreezeSpeed ) then
-                                KillVelocity( ent )
-                                ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
-                        end
-                end
+            elseif ( velo >= FreezeSpeed ) then
+                KillVelocity( ent )
+                ServerLog( "[GS_CRASH] Disabling motion for the body of " .. nick .. " (" .. velo .. ") \n" )
+            end
         end
+    end
 end
 hook.Add( "Think", "GS_CrashCatcher", GS_CrashCatch )
