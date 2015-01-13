@@ -75,21 +75,20 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( ent )
-        if ( not IsValid( ent ) or CORPSE.GetFound( ent, true ) ) then return end
+    if ( not IsValid( ent ) ) then return end
         
-	local dti = CORPSE.dti
-	local ply = ent:GetDTEntity( dti.ENT_PLAYER )
-	local nick = CORPSE.GetPlayerNick( ent, "N/A" )
+	local ply = player.GetByUniqueID( ent.uqid )
+	local nick = ply:Nick() or "N/A"
 	local role = ent.was_role
 	
-	if ( IsValid( ply ) ) then
+	if IsValid( ply ) then
 		ply:SetNWBool( "body_found", true )
 		if ( role == ROLE_TRAITOR ) then
 			SendConfirmedTraitors( GetInnocentFilter( false ) )
 		end
 	end
 	
-	if ( bodyfound ) then
+	if bodyfound then
 		local roletext = nil
 		if ( role == ROLE_TRAITOR ) then
 			roletext = "body_found_t"
