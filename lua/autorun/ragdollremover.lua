@@ -1,4 +1,4 @@
--- Ragdoll Crash Catcher for all gamemodes
+-- Ragdoll crash catcher for all gamemodes
 -- By Ambro, DarthTealc, TheEMP, and code_gs
 -- https://github.com/Kefta/Ragdoll-Remover
 -- http://facepunch.com/showthread.php?t=1347114
