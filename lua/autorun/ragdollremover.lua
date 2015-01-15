@@ -124,19 +124,19 @@ function GS_CrashCatch()
 		if ( IsValid( ent ) and ent.player_ragdoll ) then
 			local velo = ent:GetVelocity():Length()
 			if ( velo >= RemoveSpeed ) then
+				local nick = ent:GetNWString( "nick", "N/A" )
 				if ( IsTTT ) then
 					IdentifyCorpse( ent )
 				end
 				ent:Remove()
-				local nick = ent:GetNWString( "nick", "N/A" )
 				local message = "[GS_CRASH] Removed body of " .. nick .. " for moving too fast"
 				ServerLog( message .. " (" .. velo .. ")\n" )
 				if ( EchoRemove ) then
 					PrintMessage( HUD_PRINTTALK, message )
 				end
 			elseif ( velo >= FreezeSpeed ) then
-				KillVelocity( ent )
 				local nick = ent:GetNWString( "nick", "N/A" )
+				KillVelocity( ent )
 				local message = "[GS_CRASH] Froze body of " .. nick .. " for moving too fast"
 				ServerLog( message .. " (" .. velo .. ") \n" )
 				if ( EchoFreeze ) then
