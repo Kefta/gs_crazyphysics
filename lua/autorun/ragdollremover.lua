@@ -11,14 +11,29 @@ local EchoRemove	= true		-- Tell players when a body is removed
 local FreezeSpeed	= 2000		-- Velocity ragdoll is frozen at; this should always be less than RemoveSpeed
 local RemoveSpeed	= 4000		-- Velocity ragdoll is removed at; this should always be greater than FreezeSpeed
 
-local FreezeTime	= 1			-- Time body is frozen for
+local FreezeTime	= 1 		-- Time body is frozen for
 -- End config
 
-local IsTTT 		= false		-- Change to true manually if the name of your TTT folder is not terrortown
+local IsTTT 		= false
 
 hook.Add( "Initialize", "GS_CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" ) then
 		IsTTT = true
+	end
+	
+	if ( FreezeSpeed > RemoveSpeed ) then
+		local placeholder = FreezeSpeed
+		RemoveSpeed = FreezeSpeed
+		FreezeSpeed = placeholder
+	elseif ( FreezeSpeed == RemoveSpeed ) then
+		if ( FreezeSpeed <= 1500 ) then
+			RemoveSpeed = RemoveSpeed + 500
+		else
+			FreezeSpeed = FreezeSpeed - 500
+		end
+	end
+	if ( FreezeTime <= 0 ) then
+		FreezeTime = 1
 	end
 end )
 
