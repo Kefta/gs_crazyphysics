@@ -40,7 +40,9 @@ end )
 local function KillVelocity( ent )
 	if ( not IsValid( ent ) ) then return end
 	
-	ent:SetColor( Color( 255, 0, 255, 255 ) )
+	local oldcolor = ent:GetColor()
+	local newcolor = Color( 255, 0, 255, 255 )
+	ent:SetColor( newcolor )
 	
 	ent:SetVelocity( vector_origin )
 	
@@ -58,8 +60,6 @@ local function KillVelocity( ent )
 	end
 	
 	timer.Simple( FreezeTime, function()
-		ent:SetColor( Color( 255, 255, 255, 255 ) )
-		
 		for i = 0, ent:GetPhysicsObjectCount() - 1 do
 			local subphys = ent:GetPhysicsObjectNum( i )
 			if ( IsValid( subphys ) ) then
@@ -69,6 +69,9 @@ local function KillVelocity( ent )
 			end
 		end
 	end )
+	
+	ent:SetColor( oldcolor )
+	
 end
 
 local function IdentifyCorpse( ent )
