@@ -40,7 +40,7 @@ end )
 local function KillVelocity( ent )
 	if ( not IsValid( ent ) ) then return end
 	
-	local oldcolor = ent:GetColor()
+	local oldcolor = ent:GetColor() or Color( 255, 255, 255, 255 )
 	local newcolor = Color( 255, 0, 255, 255 )
 	ent:SetColor( newcolor )
 	
