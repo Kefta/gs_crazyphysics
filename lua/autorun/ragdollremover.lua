@@ -16,7 +16,7 @@ local FreezeTime	= 1 		-- Time body is frozen for; value must be greater than or
 
 local IsTTT 		= false		-- Do not change unless your TTT folder is not called terrortown
 
-hook.Add( "Initialize", "GS_CheckTTT", function()
+hook.Add( "PostGamemodeLoaded", "GS_CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" ) then
 		IsTTT = true
 	end
