@@ -60,6 +60,7 @@ local function KillVelocity( ent )
 	end
 	
 	timer.Simple( FreezeTime, function()
+		if ( not IsValid( ent ) ) then return end
 		for i = 0, ent:GetPhysicsObjectCount() - 1 do
 			local subphys = ent:GetPhysicsObjectNum( i )
 			if ( IsValid( subphys ) ) then
@@ -69,6 +70,8 @@ local function KillVelocity( ent )
 			end
 		end
 	end )
+	
+	if ( not IsValid( ent ) ) then return end
 	
 	ent:SetColor( oldcolor )
 	
