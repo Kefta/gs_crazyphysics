@@ -125,7 +125,7 @@ local function IdentifyCorpse( ent )
 	end
 end
 
-function GS_CrashCatch()
+local function GS_CrashCatch()
 	for _, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
 		if ( IsValid( ent ) and ent.player_ragdoll ) then
 			local velo = ent:GetVelocity():Length()
