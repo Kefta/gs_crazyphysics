@@ -16,6 +16,7 @@ local FreezeTime	= 1 		-- Time body is frozen for
 local ThinkDelay	= 0.5		-- How often the server should check for bad ragdolls; change to 0 to run every Think
 
 local UnreasonableHook	= false		-- Check all entities for unreasonable angles/positions; expensive hook
+local NaNCheck		= false		-- Check and attempt to remove any ragdolls that have NaN/inf positions
 -- End config
 
 local IsTTT 		= false		-- Do not change unless your TTT folder is not called terrortown
@@ -138,10 +139,13 @@ hook.Add( "Think", "GS - Ragdoll Crash Catcher", function()
 	
 	for _, ent in ipairs( ents.FindByClass( "prop_ragdoll" ) ) do
 		if ( IsValid( ent ) ) then
-			local pos = tostring( ent:GetPos().x )
+			if ( NaNCheck ) then
+				local pos = tostring( ent:GetPos().x )
 			
-			if ( pos == "nan" or pos == "inf" or pos == "-nan" or pos == "-inf" ) then 
-				ent:Remove() 
+				if ( pos == "nan" or pos == "inf" or pos == "-nan" or pos == "-inf" ) then 
+					ent:Remove()
+					continue
+				end
 			end
 			
 			local velo = ent:GetVelocity():Length()
