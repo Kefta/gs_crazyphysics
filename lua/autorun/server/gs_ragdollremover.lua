@@ -137,14 +137,14 @@ hook.Add( "Think", "GS - Ragdoll Crash Catcher", function()
 	NextThink = CurTime() + ThinkDelay
 	
 	for _, ent in ipairs( ents.FindByClass( "prop_ragdoll" ) ) do
-		if ( IsValid( ent ) and ent.player_ragdoll ) then
-			local velo = ent:GetVelocity()
-			local x = tostring( velo.x )
-			if ( x == "nan" or x == "inf" o x == "-nan" or x == "-inf" ) then 
+		if ( IsValid( ent ) ) then
+			local pos = tostring( ent:GetPos().x )
+			
+			if ( pos == "nan" or pos == "inf" or pos == "-nan" or pos == "-inf" ) then 
 				ent:Remove() 
 			end
 			
-			velo = velo:Length()
+			local velo = ent:GetVelocity():Length()
 			
 			if ( velo >= RemoveSpeed ) then
 				local nick = ent:GetNWString( "nick", "N/A" )
