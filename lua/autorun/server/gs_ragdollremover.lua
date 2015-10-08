@@ -1,8 +1,9 @@
+if ( CLIENT ) then return end
 -- Ragdoll crash catcher for all gamemodes
 -- By Ambro, DarthTealc, TheEMP, and code_gs
 -- https://github.com/Kefta/Ragdoll-Remover
 -- http://facepunch.com/showthread.php?t=1347114
--- Run shared (lua/autorun/ragdollremover.lua)
+-- Run serverside (lua/autorun/server/ragdollremover.lua)
 
 -- Config
 local EchoFreeze	= true		-- Tell players when a body is frozen
@@ -11,12 +12,18 @@ local EchoRemove	= true		-- Tell players when a body is removed
 local FreezeSpeed	= 2000		-- Velocity ragdoll is frozen at; this should always be less than RemoveSpeed
 local RemoveSpeed	= 4000		-- Velocity ragdoll is removed at; this should always be greater than FreezeSpeed
 
-local FreezeTime	= 1 		-- Time body is frozen for; value must be greater than or equal to 0.1
+local FreezeTime	= 1 		-- Time body is frozen for
+local ThinkDelay	= 0.5		-- How often the server should check for bad ragdolls; change to 0 to run every Think
+
+local UnreasonableHook	= false		-- Check all entities for unreasonable angles/positions; expensive hook
 -- End config
 
 local IsTTT 		= false		-- Do not change unless your TTT folder is not called terrortown
 
-hook.Add( "PostGamemodeLoaded", "GS_CheckTTT", function()
+local UnreasonableAngle = 16000
+local UnreasonablePosition = 16000
+
+hook.Add( "PostGamemodeLoaded", "GS - Check TTT", function()
 	if ( GAMEMODE_NAME == "terrortown" ) then
 		IsTTT = true
 	end
@@ -69,12 +76,9 @@ local function KillVelocity( ent )
 				subphys:Wake()
 			end
 		end
+		
+		ent:SetColor( oldcolor )
 	end )
-	
-	if ( not IsValid( ent ) ) then return end
-	
-	ent:SetColor( oldcolor )
-	
 end
 
 local function IdentifyCorpse( ent )
@@ -125,10 +129,23 @@ local function IdentifyCorpse( ent )
 	end
 end
 
-local function GS_CrashCatch()
-	for _, ent in pairs( ents.FindByClass( "prop_ragdoll" ) ) do
+local NextThink = 0
+
+hook.Add( "Think", "GS - Ragdoll Crash Catcher", function()
+	if ( NextThink > CurTime() ) then return end
+	
+	NextThink = CurTime() + ThinkDelay
+	
+	for _, ent in ipairs( ents.FindByClass( "prop_ragdoll" ) ) do
 		if ( IsValid( ent ) and ent.player_ragdoll ) then
-			local velo = ent:GetVelocity():Length()
+			local velo = ent:GetVelocity()
+			local x = tostring( velo.x )
+			if ( x == "nan" or x == "inf" o x == "-nan" or x == "-inf" ) then 
+				ent:Remove() 
+			end
+			
+			velo = velo:Length()
+			
 			if ( velo >= RemoveSpeed ) then
 				local nick = ent:GetNWString( "nick", "N/A" )
 				if ( IsTTT ) then
@@ -151,5 +168,40 @@ local function GS_CrashCatch()
 			end
 		end
 	end
+end )
+
+if ( UnreasonableHook ) then
+	do 
+		local NextThink = 0
+	
+		hook.Add( "Think", "GS - Unreasonable Position Remover", function()
+			if ( NextThink > CurTime() ) then return end
+	
+			NextThink = CurTime() + ThinkDelay
+		
+			for _, ent in ipairs( ents.GetAll() ) do
+				if ( IsValid( ent ) ) then
+					local angles = ent:GetAngles()
+					if ( angles.x >= UnreasonableAngle ) then
+						angles.x = angles.x % 360
+					end
+					if ( angles.y >= UnreasonableAngle ) then
+						angles.y = angles.y % 360
+					end
+					if ( angles.z >= UnreasonableAngle ) then
+						angles.z = angles.z % 360
+					end
+					
+					local pos = ent:GetPos()
+					if ( pos.x >= UnreasonablePosition or pos.y >= UnreasonablePosition or pos.z >= UnreasonablePosition ) then
+						if ( ent:IsPlayer() or ent:IsNPC() ) then
+							ent:SetPos( vector_origin )
+						else
+							ent:Remove()
+						end
+					end
+				end
+			end
+		end )
+	end
 end
-hook.Add( "Think", "GS_CrashCatcher", GS_CrashCatch )
