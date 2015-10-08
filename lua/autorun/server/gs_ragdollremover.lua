@@ -158,6 +158,7 @@ hook.Add( "Think", "GS - Ragdoll Crash Catcher", function()
 					PrintMessage( HUD_PRINTTALK, message )
 				end
 			elseif ( velo >= FreezeSpeed ) then
+				ent:CollisionRulesChanged()
 				local nick = ent:GetNWString( "nick", "N/A" )
 				KillVelocity( ent )
 				local message = "[GS_CRASH] Froze body of " .. nick .. " for moving too fast"
