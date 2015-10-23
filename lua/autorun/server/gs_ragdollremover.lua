@@ -88,7 +88,7 @@ local function IdentifyCorpse( ent )
 	local dti = CORPSE.dti
 	local ply = ent:GetDTEntity( dti.ENT_PLAYER ) or player.GetByUniqueID( ent.uqid )
 	local nick = CORPSE.GetPlayerNick( ent, nil ) or ply:Nick() or "N/A"
-	local role = ent.was_role or ply:GetRole()
+	local role = ent.was_role or ( ply.GetRole and ply:GetRole() ) or ROLE_INNOCENT
 	
 	if ( IsValid( ply ) ) then
 		ply:SetNWBool( "body_found", true )
