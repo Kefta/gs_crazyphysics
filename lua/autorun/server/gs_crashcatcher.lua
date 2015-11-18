@@ -1,5 +1,5 @@
 --Entity Crash Catcher
---Entity crash catcher for all gamemodes. Detects entities that are either going to fast or have invalid positions, and stops them from crashing the server.
+--Detects entities that are either going to fast or have invalid positions, and stops them from crashing the server.
 -- By code_gs, Ambro, DarthTealc, TheEMP
 -- GitHub: https://github.com/Kefta/Entity-Crash-Catcher
 -- Facepunch thread: http://facepunch.com/showthread.php?t=1347114
