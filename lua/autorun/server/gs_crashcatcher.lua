@@ -12,8 +12,8 @@ local RemoveSpeed	= 4000		-- Velocity ragdoll is removed at
 local FreezeTime	= 1       	-- Time body is frozen for
 local ThinkDelay	= 0.5     	-- How often the server should check for bad ragdolls; change to 0 to run every Think
 
-local VelocityHook = false		-- Check entities for unreasonable velocity	
-local UnreasonableHook = false		-- Check entities for unreasonable angles/positions
+local VelocityHook = true		-- Check entities for unreasonable velocity	
+local UnreasonableHook = true		-- Check entities for unreasonable angles/positions
 local NaNCheck = false			-- Check and attempt to remove any ragdolls that have NaN/inf positions
 -- End config
 
