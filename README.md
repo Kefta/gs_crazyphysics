@@ -5,6 +5,6 @@ Entity crash catcher for all gamemodes. Detects entities that are either going t
 
 By code_gs, Ambro, DarthTealc, TheEMP
 
-http://facepunch.com/showthread.php?t=1347114
+Facepunch thread: http://facepunch.com/showthread.php?t=1347114
 
-This script is also embedded into pLib: https://github.com/SuperiorServers/plib_v2
+This script is also implemented into pLib: https://github.com/SuperiorServers/plib_v2
