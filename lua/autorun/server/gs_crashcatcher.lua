@@ -35,7 +35,7 @@ local MIN_REASONABLE_COORD = -MAX_REASONABLE_COORD
 local MIN_REASONABLE_ANGLE = -MAX_REASONABLE_ANGLE
 
 hook.Add( "PostGamemodeLoaded", "physics.CheckTTT", function()
-	if ( GAMEMODE_NAME == "terrortown" or ( CORPSE and CORPSE.Create ) ) then
+	if ( GAMEMODE_NAME == "terrortown" or engine.ActiveGamemode() == "terrortown" ) then
 		IsTTT = true
 	end
 end )
@@ -45,9 +45,13 @@ local function KillVelocity( ent )
 	
 	local oldcolor = ent:GetColor() or Color( 255, 255, 255, 255 )
 	local newcolor = Color( 255, 0, 255, 255 )
-	ent:SetColor( newcolor )
+
+	if not ent:IsPlayer() then
+		ent:SetColor( newcolor )
+	end
 	
 	ent:SetVelocity( vector_origin )
+	if ent:IsPlayer() then ent:SetVelocity(ent:GetVelocity()*-1) end
 	
 	if ( IsTTT and IsValid( ent:GetOwner() ) ) then
 		ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
@@ -78,7 +82,7 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( ent )
-	if ( not IsValid( ent ) or not CORPSE or CORPSE.GetFound( ent, false ) ) then return end
+	if ( not IsValid( ent ) or not CORPSE or not CORPSE.GetFound or CORPSE.GetFound( ent, false ) ) then return end
 	
 	local dti = CORPSE.dti
 	local ply = ent:GetDTEntity( dti.ENT_PLAYER ) or player.GetByUniqueID( ent.uqid )
@@ -164,7 +168,13 @@ if ( VelocityHook or UnreasonableHook ) then
 						if ( IsTTT and ent:IsPlayer() ) then
 							IdentifyCorpse( ent )
 						end
-						ent:Remove()
+						if ent:IsPlayer() then 
+							ent:SetPos(vector_origin)
+							ent:SetVelocity(ent:GetVelocity()*-1)
+							ent:KillSilent() 
+						else
+							ent:Remove()
+						end
 						local message = "[GS] Removed " .. nick .. " for moving too fast"
 						ServerLog( message .. " (" .. velo .. ")\n" )
 						if ( EchoRemove ) then
