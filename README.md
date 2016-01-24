@@ -12,6 +12,6 @@ Make sure to configure the settings in the script to best fit your server.
 * TheEMP - Fixed TTT body identification
 * LuaTenshi - Better TTT check and misc fixes
 
-Facepunch thread: http://facepunch.com/showthread.php?t=1347114
+Facepunch: http://facepunch.com/showthread.php?t=1347114
 
-GitHub link: https://github.com/Kefta/Entity-Crash-Catcher
+GitHub: https://github.com/Kefta/Entity-Crash-Catcher
