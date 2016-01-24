@@ -1,10 +1,17 @@
 Entity Crash Catcher
 ===============
 
-Entity crash catcher for all gamemodes. Detects entities that are either going to fast or have invalid positions, and stops them from crashing the server.
+This script detects entities that are moving too fast or falling out of the world, leading to a potential server crash.
 
-By code_gs, Ambro, DarthTealc, TheEMP
+Make sure to configure the settings in the script to best fit your server.
+
+####Contributions
+* code_gs - Current maintainer
+* Ambro - Original creator of script and concept
+* DarthTealc - Added TTT support
+* TheEMP - Fixed TTT body identification
+* LuaTenshi - Better TTT check and misc fixes
 
 Facepunch thread: http://facepunch.com/showthread.php?t=1347114
 
-This script is also implemented into pLib: https://github.com/SuperiorServers/plib_v2
+GitHub link: https://github.com/Kefta/Entity-Crash-Catcher
