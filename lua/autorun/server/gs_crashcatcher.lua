@@ -3,7 +3,6 @@
 -- By code_gs, Ambro, DarthTealc, TheEMP
 -- GitHub: https://github.com/Kefta/Entity-Crash-Catcher
 -- Facepunch thread: http://facepunch.com/showthread.php?t=1347114
--- This script is also implemented into pLib: https://github.com/SuperiorServers/plib_v2
 
 -- Config
 local EchoFreeze	= false		-- Tell players when a body is frozen
@@ -17,7 +16,6 @@ local ThinkDelay	= 0.5     	-- How often the server should check for bad ragdoll
 
 local VelocityHook = true		-- Check entities for unreasonable velocity	
 local UnreasonableHook = true		-- Check entities for unreasonable angles/positions
-local NaNCheck = false			-- Check and attempt to remove any ragdolls that have NaN/inf positions
 -- End config
 
 local IsTTT = false			-- Internal variable for detecting TTT
@@ -29,12 +27,12 @@ MIN_ANGLE = -MAX_ANGLE
 COORD_EXTENT = 2*MAX_COORD
 MAX_TRACE_LENGTH = math.sqrt(3)*COORD_EXTENT
 ]]--
-local MAX_REASONABLE_COORD = 15950
-local MAX_REASONABLE_ANGLE = 15950
+local MAX_REASONABLE_COORD = 15000
+local MAX_REASONABLE_ANGLE = 15000
 local MIN_REASONABLE_COORD = -MAX_REASONABLE_COORD
 local MIN_REASONABLE_ANGLE = -MAX_REASONABLE_ANGLE
 
-hook.Add( "PostGamemodeLoaded", "physics.CheckTTT", function()
+hook.Add( "PostGamemodeLoaded", "GS - CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" or engine.ActiveGamemode() == "terrortown" ) then
 		IsTTT = true
 	end
@@ -45,17 +43,9 @@ local function KillVelocity( ent )
 	
 	local oldcolor = ent:GetColor() or Color( 255, 255, 255, 255 )
 	local newcolor = Color( 255, 0, 255, 255 )
-
-	if not ent:IsPlayer() then
-		ent:SetColor( newcolor )
-	end
 	
+	ent:SetColor( newcolor )
 	ent:SetVelocity( vector_origin )
-	if ent:IsPlayer() then ent:SetVelocity(ent:GetVelocity()*-1) end
-	
-	if ( IsTTT and IsValid( ent:GetOwner() ) ) then
-		ent:GetOwner():GetWeapon( "weapon_zm_carry" ):Reset( false )
-	end
 	
 	for i = 0, ent:GetPhysicsObjectCount() - 1 do
 		local subphys = ent:GetPhysicsObjectNum( i )
@@ -82,7 +72,7 @@ local function KillVelocity( ent )
 end
 
 local function IdentifyCorpse( ent )
-	if ( not IsValid( ent ) or not CORPSE or not CORPSE.GetFound or CORPSE.GetFound( ent, false ) ) then return end
+	if ( not IsValid( ent ) or not CORPSE or not CORPSE.GetFound or CORPSE.GetFound( ent, false ) ) then return end -- Thanks no ragdoll metatable
 	
 	local dti = CORPSE.dti
 	local ply = ent:GetDTEntity( dti.ENT_PLAYER ) or player.GetByUniqueID( ent.uqid )
@@ -128,58 +118,31 @@ end
 if ( VelocityHook or UnreasonableHook ) then
 	local NextThink = 0
 	
-	local InvalidStrings =
-	{
-		["nan"] = true,
-		["inf"] = true,
-		["-inf"] = true,
-		["-nan"] = true
-	}
-	
-	hook.Add( "Think", "physics.Unreasonable", function()
+	hook.Add( "Think", "GS - Check Velocity", function()
 		if ( NextThink > CurTime() ) then return end
 		
 		NextThink = CurTime() + ThinkDelay
 		
-		local ents = ents.GetUnreasonables()
-		local ent
-		
-		for i = 1, #ents do
-			ent = ents[i]
+		for i, ent in ipairs( ents.GetUnreasonables() ) do
 			if ( IsValid( ent ) ) then
-				if ( NaNCheck ) then
-					local pos = ent:GetPos()
-					if ( InvalidStrings[tostring( pos.x )] or InvalidStrings[tostring( pos.y )] or InvalidStrings[tostring( pos.z )] ) then
-						ent:Remove()
-						continue
-					end
-					local ang = ent:GetAngles()
-					if ( InvalidStrings[tostring( ang.p )] or InvalidStrings[tostring( ang.y )] or InvalidStrings[tostring( ang.r )] ) then
-						ent:Remove()
-						continue
-					end
-				end
-				
 				if ( VelocityHook ) then
 					local velo = ent:GetVelocity():Length()
 					
 					if ( velo >= RemoveSpeed ) then
 						local nick = ent:GetNWString( "nick", ent:GetClass() )
-						if ( IsTTT and ent:IsPlayer() ) then
+						if ( IsTTT ) then
 							IdentifyCorpse( ent )
 						end
-						if ent:IsPlayer() then 
-							ent:SetPos(vector_origin)
-							ent:SetVelocity(ent:GetVelocity()*-1)
-							ent:KillSilent() 
-						else
-							ent:Remove()
-						end
+						
+						ent:Remove()
+						
 						local message = "[GS] Removed " .. nick .. " for moving too fast"
 						ServerLog( message .. " (" .. velo .. ")\n" )
 						if ( EchoRemove ) then
 							PrintMessage( HUD_PRINTTALK, message )
 						end
+						
+						return -- Don't use a removed ent anymore
 					elseif ( velo >= FreezeSpeed ) then
 						ent:CollisionRulesChanged()
 						local nick = ent:GetNWString( "nick", ent:GetClass() )
@@ -193,33 +156,30 @@ if ( VelocityHook or UnreasonableHook ) then
 				end
 				
 				if ( UnreasonableHook ) then
-					local ang = ent:GetAngles()
+					--[[local ang = ent:GetAngles() -- Need to do some more testing before I want to check for these
 					if ( not util.IsReasonable( ang ) ) then
 						ent:SetAngles( ang.p % 360, ang.y % 360, ang.r % 360 )
-					end
-				
-					local pos = ent:GetPos()
-					if ( not util.IsReasonable( pos ) ) then
-						if ( ent:IsPlayer() or ent:IsNPC() ) then
-							ent:SetPos( vector_origin )
-						else
-							ent:Remove()
-						end
+					end]]
+					
+					if ( not util.IsReasonable( ent:GetPos() ) ) then
+						ent:Remove() -- Just remove the entity, 
 					end
 				end
+			else
+				EntList[i] = nil -- Entity is now invalid, but it didn't call EntityRemoved for some reason
 			end
 		end
 	end )
 end
 
 function util.IsReasonable( struct )
-	if ( isvector( struct ) ) then
+	--if ( isvector( struct ) ) then
 		if( struct.x >= MAX_REASONABLE_COORD or struct.x <= MIN_REASONABLE_COORD or 
 			struct.y >= MAX_REASONABLE_COORD or struct.y <= MIN_REASONABLE_COORD or 
 			struct.z >= MAX_REASONABLE_COORD or struct.y <= MIN_REASONABLE_COORD ) then
 			return false
 		end
-	elseif ( isangle( struct ) ) then
+	--[[elseif ( isangle( struct ) ) then
 		if( struct.p >= MAX_REASONABLE_ANGLE or struct.p <= MIN_REASONABLE_ANGLE or 
 			struct.y >= MAX_REASONABLE_ANGLE or struct.y <= MIN_REASONABLE_ANGLE or 
 			struct.r >= MAX_REASONABLE_ANGLE or struct.r <= MIN_REASONABLE_ANGLE ) then
@@ -227,7 +187,7 @@ function util.IsReasonable( struct )
 		end
 	else
 		error( string.format( "Invalid data type sent into util.IsReasonable ( Vector or Angle expected, got %s )", type( struct ) ) )
-	end
+	end]]
 	
 	return true
 end
@@ -238,15 +198,18 @@ local UnreasonableEnts =
 	[ "prop_ragdoll" ] = true
 }
 
+local EntList = {}
+
+hook.Add( "OnEntityCreated", "GS - Create Soft Entity List", function( ent )
+	if ( not ( ent:IsValid() and UnreasonableEnts[ ent:GetClass() ] )) then return end
+	
+	EntList[ ent:EntIndex() ] = ent
+end )
+
+hook.Add( "EntityRemoved", "GS - Remove Soft Entity List", function( ent )
+	EntList[ ent:EntIndex() ] = nil
+end )
+
 function ents.GetUnreasonables()
-	local ParedEnts = {}
-	local AllEnts = ents.GetAll()
-	
-	for i = 1, #AllEnts do
-		if ( UnreasonableEnts[ AllEnts[i]:GetClass() ] or AllEnts[i]:IsPlayer() or AllEnts[i]:IsNPC() ) then
-			ParedEnts[#ParedEnts + 1] = AllEnts[i]
-		end
-	end
-	
-	return ParedEnts
+	return EntList
 end
