@@ -15,7 +15,7 @@ local FreezeTime	= 1       	-- Time body is frozen for
 local ThinkDelay	= 0.5     	-- How often the server should check for bad ragdolls; change to 0 to run every Think
 
 local VelocityHook = true		-- Check entities for unreasonable velocity	
-local UnreasonableHook = true		-- Check entities for unreasonable angles/positions
+local UnreasonableHook = true		-- Check entities for unreasonable positions
 -- End config
 
 local IsTTT = false			-- Internal variable for detecting TTT
@@ -162,7 +162,7 @@ if ( VelocityHook or UnreasonableHook ) then
 					end]]
 					
 					if ( not util.IsReasonable( ent:GetPos() ) ) then
-						ent:Remove() -- Just remove the entity, 
+						ent:Remove() -- Just remove the entity, no use trying to find somewhere to put them
 					end
 				end
 			else
