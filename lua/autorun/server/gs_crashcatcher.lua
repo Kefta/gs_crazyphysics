@@ -1,8 +1,8 @@
---Entity Crash Catcher
---Detects entities that are either going to fast or have invalid positions, and stops them from crashing the server.
--- By code_gs, Ambro, DarthTealc, TheEMP
+-- Entity Crash Catcher
+-- This script detects entities that are moving too fast or falling out of the world, leading to a potential server crash
+-- By code_gs, Ambro, DarthTealc, TheEMP, and LuaTenshi
 -- GitHub: https://github.com/Kefta/Entity-Crash-Catcher
--- Facepunch thread: http://facepunch.com/showthread.php?t=1347114
+-- Facepunch: http://facepunch.com/showthread.php?t=1347114
 
 -- Config
 local EchoFreeze	= false		-- Tell players when a body is frozen
