@@ -4,6 +4,8 @@
 -- GitHub: https://github.com/Kefta/Entity-Crash-Catcher
 -- Facepunch: http://facepunch.com/showthread.php?t=1347114
 
+if ( CLIENT ) then return end -- Fool proof
+
 -- Config
 local EchoFreeze	= false		-- Tell players when a body is frozen
 local EchoRemove	= false		-- Tell players when a body is removed
