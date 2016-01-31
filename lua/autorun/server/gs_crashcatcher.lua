@@ -123,46 +123,60 @@ if ( VelocityHook or UnreasonableHook ) then
 		
 		NextThink = CurTime() + ThinkDelay
 		
-		for i, ent in ipairs( ents.GetUnreasonables() ) do
+		local pos
+		local velo
+		local nick
+		local ent
+		local rMessage = "[GS] Removed %s for moving too fast"
+		local fMessage = "[GS] Froze %s for moving too fast"
+		local veloMessage = " (%f)\n"
+		local tempMessage
+		local nickString = "nick" -- Don't run StringBuilder everytime
+		
+		for i = 0, #EntList do
+			ent = EntList[i]
 			if ( IsValid( ent ) ) then
-				if ( VelocityHook ) then
-					local velo = ent:GetVelocity():Length()
-					
-					if ( velo >= RemoveSpeed ) then
-						local nick = ent:GetNWString( "nick", ent:GetClass() )
-						if ( IsTTT ) then
-							IdentifyCorpse( ent )
-						end
-						
-						ent:Remove()
-						
-						local message = "[GS] Removed " .. nick .. " for moving too fast"
-						ServerLog( message .. " (" .. velo .. ")\n" )
-						if ( EchoRemove ) then
-							PrintMessage( HUD_PRINTTALK, message )
-						end
-						
-						return -- Don't use a removed ent anymore
-					elseif ( velo >= FreezeSpeed ) then
-						ent:CollisionRulesChanged()
-						local nick = ent:GetNWString( "nick", ent:GetClass() )
-						KillVelocity( ent )
-						local message = "[GS] Froze " .. nick .. " for moving too fast"
-						ServerLog( message .. " (" .. velo .. ") \n" )
-						if ( EchoFreeze ) then
-							PrintMessage( HUD_PRINTTALK, message )
-						end
-					end
-				end
-				
 				if ( UnreasonableHook ) then
 					--[[local ang = ent:GetAngles() -- Need to do some more testing before I want to check for these
 					if ( not util.IsReasonable( ang ) ) then
 						ent:SetAngles( ang.p % 360, ang.y % 360, ang.r % 360 )
 					end]]
 					
-					if ( not util.IsReasonable( ent:GetPos() ) ) then
+					pos = ent:GetPos()
+					
+					if ( isnan( pos:Length() ) or not util.IsReasonable( pos ) ) then
 						ent:Remove() -- Just remove the entity, no use trying to find somewhere to put them
+					end
+				end
+				
+				if ( VelocityHook ) then
+					velo = ent:GetVelocity():Length()
+					
+					if ( velo >= RemoveSpeed ) then
+						nick = ent:GetNWString( nickString, ent:GetClass() )
+						if ( IsTTT ) then
+							IdentifyCorpse( ent )
+						end
+						
+						ent:Remove()
+						
+						tempMessage = string.format( rMessage, nick )
+						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
+						if ( EchoRemove ) then
+							PrintMessage( HUD_PRINTTALK, tempMessage )
+						end
+						
+						return -- Don't use a removed ent anymore
+					elseif ( velo >= FreezeSpeed ) then
+						ent:CollisionRulesChanged()
+						nick = ent:GetNWString( nickString, ent:GetClass() )
+						KillVelocity( ent )
+						
+						tempMessage = string.format( rMessage, nick )
+						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
+						if ( EchoFreeze ) then
+							PrintMessage( HUD_PRINTTALK, tempMessage )
+						end
 					end
 				end
 			else
@@ -199,17 +213,27 @@ local UnreasonableEnts =
 }
 
 local EntList = {}
+local EntIDs = {}
 
 hook.Add( "OnEntityCreated", "GS - Create Soft Entity List", function( ent )
 	if ( not ( ent:IsValid() and UnreasonableEnts[ ent:GetClass() ] )) then return end
 	
-	EntList[ ent:EntIndex() ] = ent
+	EntIDs[ ent:EntIndex() ] = table.insert( EntList, ent )
 end )
 
 hook.Add( "EntityRemoved", "GS - Remove Soft Entity List", function( ent )
-	EntList[ ent:EntIndex() ] = nil
+	EntList[ table.remove( EntIDs, ent:EntIndex() ) ] = nil
 end )
 
 function ents.GetUnreasonables()
 	return EntList
+end
+
+function isnan( num )
+	-- NaN can't ever be equal to itself; thanks Meepen and MetaMan!
+	if ( num == num ) then
+		return false
+	end
+	
+	return true
 end
