@@ -233,9 +233,5 @@ end
 
 function isnan( num )
 	-- NaN can't ever be equal to itself; thanks Meepen and MetaMan!
-	if ( num == num ) then
-		return false
-	end
-	
-	return true
+	return num ~= num
 end
