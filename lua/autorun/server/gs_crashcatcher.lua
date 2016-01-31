@@ -146,6 +146,7 @@ if ( VelocityHook or UnreasonableHook ) then
 					
 					if ( isnan( pos:Length() ) or not util.IsReasonable( pos ) ) then
 						ent:Remove() -- Just remove the entity, no use trying to find somewhere to put them
+						continue -- We're done here
 					end
 				end
 				
@@ -181,6 +182,7 @@ if ( VelocityHook or UnreasonableHook ) then
 				end
 			else
 				EntList[i] = nil -- Entity is now invalid, but it didn't call EntityRemoved for some reason
+				EntIDs[i] = nil
 			end
 		end
 	end )
