@@ -117,6 +117,31 @@ local function IdentifyCorpse( ent )
 	end
 end
 
+local UnreasonableEnts =
+{
+	[ "prop_physics" ] = true,
+	[ "prop_ragdoll" ] = true
+}
+
+local EntList = {}
+local EntIDs = {}
+
+hook.Add( "OnEntityCreated", "GS - Create Soft Entity List", function( ent )
+	if ( not ( ent:IsValid() and UnreasonableEnts[ ent:GetClass() ] )) then return end
+	
+	EntIDs[ ent:EntIndex() ] = table.insert( EntList, ent )
+end )
+
+hook.Add( "EntityRemoved", "GS - Remove Soft Entity List", function( ent )
+	local index = table.remove( EntIDs, ent:EntIndex() )
+	
+	if ( not index ) then
+		return -- OnEntityCreated wasn't called
+	end
+	
+	EntList[ index ] = nil
+end )
+
 if ( VelocityHook or UnreasonableHook ) then
 	local NextThink = 0
 	
@@ -209,25 +234,6 @@ function util.IsReasonable( struct )
 	
 	return true
 end
-
-local UnreasonableEnts =
-{
-	[ "prop_physics" ] = true,
-	[ "prop_ragdoll" ] = true
-}
-
-local EntList = {}
-local EntIDs = {}
-
-hook.Add( "OnEntityCreated", "GS - Create Soft Entity List", function( ent )
-	if ( not ( ent:IsValid() and UnreasonableEnts[ ent:GetClass() ] )) then return end
-	
-	EntIDs[ ent:EntIndex() ] = table.insert( EntList, ent )
-end )
-
-hook.Add( "EntityRemoved", "GS - Remove Soft Entity List", function( ent )
-	EntList[ table.remove( EntIDs, ent:EntIndex() ) ] = nil
-end )
 
 function ents.GetUnreasonables()
 	return EntList
