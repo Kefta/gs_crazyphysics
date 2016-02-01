@@ -7,14 +7,14 @@
 if ( CLIENT ) then return end -- Fool proof
 
 -- Config
-local EchoFreeze	= false		-- Tell players when a body is frozen
-local EchoRemove	= false		-- Tell players when a body is removed
+local EchoFreeze	= false		-- Tell players when an entity is frozen
+local EchoRemove	= false		-- Tell players when an entity is removed
 
-local FreezeSpeed	= 2000		-- Velocity ragdoll is frozen at; make greater than RemoveSpeed if you want to disable freezing
-local RemoveSpeed	= 4000		-- Velocity ragdoll is removed at
+local FreezeSpeed	= 2000		-- Velocity entity is frozen at; make greater than RemoveSpeed if you want to disable freezing
+local RemoveSpeed	= 4000		-- Velocity entity is removed at
 
-local FreezeTime	= 1       	-- Time body is frozen for
-local ThinkDelay	= 0.5     	-- How often the server should check for bad ragdolls; change to 0 to run every Think
+local FreezeTime	= 1       	-- Time entity is frozen for
+local ThinkDelay	= 0.5     	-- How often the server should check; change to 0 to run every Think
 
 local VelocityHook = true		-- Check entities for unreasonable velocity	
 local UnreasonableHook = true		-- Check entities for unreasonable positions
