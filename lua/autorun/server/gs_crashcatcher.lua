@@ -196,7 +196,7 @@ if ( VelocityHook or UnreasonableHook ) then
 							PrintMessage( HUD_PRINTTALK, tempMessage )
 						end
 						
-						return -- Don't use a removed ent anymore
+						continue -- Don't use a removed ent anymore
 					elseif ( velo >= FreezeSpeed ) then
 						ent:CollisionRulesChanged()
 						nick = ent:GetNWString( nickString, ent:GetClass() )
