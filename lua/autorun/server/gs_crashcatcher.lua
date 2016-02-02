@@ -108,11 +108,13 @@ local function IdentifyCorpse( ent )
 	
 	CORPSE.SetFound( ent, true )
 	
-	for _, vicid in pairs( ent.kills ) do
-		local vic = player.GetByUniqueID( vicid )
-		if ( IsValid( vic ) and not vic:GetNWBool( "body_found", false ) ) then
-			LANG.Msg( "body_confirm", { finder = "The Server", victim = vic:Nick() or vic:GetClass() } )
-			vic:SetNWBool( "body_found", true )
+	if ( ent.kills ) then
+		for _, vicid in pairs( ent.kills ) do
+			local vic = player.GetByUniqueID( vicid )
+			if ( IsValid( vic ) and not vic:GetNWBool( "body_found", false ) ) then
+				LANG.Msg( "body_confirm", { finder = "The Server", victim = vic:Nick() or vic:GetClass() } )
+				vic:SetNWBool( "body_found", true )
+			end
 		end
 	end
 end
