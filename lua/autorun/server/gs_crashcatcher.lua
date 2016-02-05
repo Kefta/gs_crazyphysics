@@ -14,7 +14,7 @@ local FreezeSpeed	= 2000		-- Velocity entity is frozen at; make greater than Rem
 local RemoveSpeed	= 4000		-- Velocity entity is removed at
 
 local FreezeTime	= 1       	-- Time entity is frozen for
-local ThinkDelay	= 0.5     	-- How often the server should check; change to 0 to run every Think
+local ThinkDelay	= 0     	-- How often the server should check; 0 to run every Think
 
 local VelocityHook = true		-- Check entities for unreasonable velocity	
 local UnreasonableHook = true		-- Check entities for unreasonable positions
@@ -156,8 +156,8 @@ if ( VelocityHook or UnreasonableHook ) then
 		local velo
 		local nick
 		local ent
-		local rMessage = "[GS] Removed %s for moving too fast"
-		local fMessage = "[GS] Froze %s for moving too fast"
+		local rMessage = "[GS] Removed %s (ID: %i) for moving too fast"
+		local fMessage = "[GS] Froze %s (ID: %i) for moving too fast"
 		local veloMessage = " (%f)\n"
 		local tempMessage
 		local nickString = "nick" -- Don't run StringBuilder everytime
@@ -190,7 +190,7 @@ if ( VelocityHook or UnreasonableHook ) then
 						
 						ent:Remove()
 						
-						tempMessage = string.format( rMessage, nick )
+						tempMessage = string.format( rMessage, nick, ent:EntIndex() )
 						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
 						if ( EchoRemove ) then
 							PrintMessage( HUD_PRINTTALK, tempMessage )
@@ -202,7 +202,7 @@ if ( VelocityHook or UnreasonableHook ) then
 						nick = ent:GetNWString( nickString, ent:GetClass() )
 						KillVelocity( ent )
 						
-						tempMessage = string.format( rMessage, nick )
+						tempMessage = string.format( rMessage, nick, ent:EntIndex() )
 						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
 						if ( EchoFreeze ) then
 							PrintMessage( HUD_PRINTTALK, tempMessage )
