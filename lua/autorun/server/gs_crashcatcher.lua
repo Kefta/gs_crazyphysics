@@ -158,6 +158,7 @@ if ( VelocityHook or UnreasonableHook ) then
 		local ent
 		local rMessage = "[GS] Removed %s (ID: %i) for moving too fast"
 		local fMessage = "[GS] Froze %s (ID: %i) for moving too fast"
+		local nMessage = "[GS] Removed %s (ID: %i) for having a nan position"
 		local veloMessage = " (%f)\n"
 		local tempMessage
 		local nickString = "nick" -- Don't run StringBuilder everytime
@@ -174,6 +175,12 @@ if ( VelocityHook or UnreasonableHook ) then
 					pos = ent:GetPos()
 					
 					if ( isnan( pos:Length() ) or not util.IsReasonable( pos ) ) then
+						tempMessage = string.format( nMessage, nick, ent:EntIndex() )
+						ServerLog( tempMessage )
+						if ( EchoRemove ) then
+							PrintMessage( HUD_PRINTTALK, tempMessage )
+						end
+						
 						ent:Remove() -- Just remove the entity, no use trying to find somewhere to put them
 						continue -- We're done here
 					end
@@ -188,15 +195,13 @@ if ( VelocityHook or UnreasonableHook ) then
 							IdentifyCorpse( ent )
 						end
 						
-						ent:Remove()
-						
 						tempMessage = string.format( rMessage, nick, ent:EntIndex() )
 						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
 						if ( EchoRemove ) then
 							PrintMessage( HUD_PRINTTALK, tempMessage )
 						end
 						
-						continue -- Don't use a removed ent anymore
+						ent:Remove()
 					elseif ( velo >= FreezeSpeed ) then
 						ent:CollisionRulesChanged()
 						nick = ent:GetNWString( nickString, ent:GetClass() )
