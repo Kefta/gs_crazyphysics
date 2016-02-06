@@ -58,7 +58,7 @@ function ENTITY:KillVelocity()
 	self:CollisionRulesChanged()
 end
 
-function ENTITY:EnableVelocity( ent )
+function ENTITY:EnableVelocity()
 	for i = 0, self:GetPhysicsObjectCount() - 1 do
 		local subphys = self:GetPhysicsObjectNum( i )
 		if ( IsValid( subphys ) ) then
