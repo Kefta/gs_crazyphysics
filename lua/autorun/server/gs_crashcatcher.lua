@@ -206,7 +206,11 @@ if ( VelocityHook or UnreasonableHook ) then
 					elseif ( velo >= FreezeSpeed ) then
 						nick = ent:GetNWString( nickString, ent:GetClass() )
 						ent:KillVelocity()
-						timer.Simple( FreezeTime, function() ent:EnableVelocity() end )
+						timer.Simple( FreezeTime, function() 
+							if ( IsValid( ent ) ) then 
+								ent:EnableVelocity() 
+							end 
+						end )
 						
 						tempMessage = string.format( rMessage, nick, ent:EntIndex() )
 						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
