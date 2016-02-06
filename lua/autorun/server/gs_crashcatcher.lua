@@ -51,6 +51,7 @@ function ENTITY:KillVelocity()
 			subphys:EnableMotion( false )
 			subphys:SetMass( subphys:GetMass() * 20 )
 			subphys:SetVelocity( vector_origin )
+			subphys:Sleep()
 			subphys:RecheckCollisionFilter() -- MAKE SURE it knows
 		end
 	end
