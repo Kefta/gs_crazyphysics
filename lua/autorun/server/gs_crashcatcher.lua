@@ -34,43 +34,42 @@ local MAX_REASONABLE_ANGLE = 15000
 local MIN_REASONABLE_COORD = -MAX_REASONABLE_COORD
 local MIN_REASONABLE_ANGLE = -MAX_REASONABLE_ANGLE
 
+local ENTITY = debug.getregistry().Entity
+
 hook.Add( "PostGamemodeLoaded", "GS - CheckTTT", function()
 	if ( GAMEMODE_NAME == "terrortown" or engine.ActiveGamemode() == "terrortown" ) then
 		IsTTT = true
 	end
 end )
 
-local function KillVelocity( ent )
-	if ( not IsValid( ent ) ) then return end
+function ENTITY:KillVelocity()
+	self:SetVelocity( vector_origin )
 	
-	local oldcolor = ent:GetColor() or Color( 255, 255, 255, 255 )
-	local newcolor = Color( 255, 0, 255, 255 )
-	
-	ent:SetColor( newcolor )
-	ent:SetVelocity( vector_origin )
-	
-	for i = 0, ent:GetPhysicsObjectCount() - 1 do
-		local subphys = ent:GetPhysicsObjectNum( i )
+	for i = 0, self:GetPhysicsObjectCount() - 1 do
+		local subphys = self:GetPhysicsObjectNum( i )
 		if ( IsValid( subphys ) ) then
 			subphys:EnableMotion( false )
 			subphys:SetMass( subphys:GetMass() * 20 )
 			subphys:SetVelocity( vector_origin )
+			subphys:RecheckCollisionFilter() -- MAKE SURE it knows
 		end
 	end
 	
-	timer.Simple( FreezeTime, function()
-		if ( not IsValid( ent ) ) then return end
-		for i = 0, ent:GetPhysicsObjectCount() - 1 do
-			local subphys = ent:GetPhysicsObjectNum( i )
-			if ( IsValid( subphys ) ) then
-				subphys:SetMass( subphys:GetMass() / 20 )
-				subphys:EnableMotion( true )
-				subphys:Wake()
-			end
+	self:CollisionRulesChanged()
+end
+
+function ENTITY:EnableVelocity( ent )
+	for i = 0, self:GetPhysicsObjectCount() - 1 do
+		local subphys = self:GetPhysicsObjectNum( i )
+		if ( IsValid( subphys ) ) then
+			subphys:SetMass( subphys:GetMass() / 20 )
+			subphys:EnableMotion( true )
+			subphys:Wake()
+			subphys:RecheckCollisionFilter()
 		end
-		
-		ent:SetColor( oldcolor )
-	end )
+	end
+	
+	self:CollisionRulesChanged()
 end
 
 local function IdentifyCorpse( ent )
@@ -181,6 +180,7 @@ if ( VelocityHook or UnreasonableHook ) then
 							PrintMessage( HUD_PRINTTALK, tempMessage )
 						end
 						
+						ent:KillVelocity() -- Just in-case remove doesn't fully kill it
 						ent:Remove() -- Just remove the entity, no use trying to find somewhere to put them
 						continue -- We're done here
 					end
@@ -201,11 +201,12 @@ if ( VelocityHook or UnreasonableHook ) then
 							PrintMessage( HUD_PRINTTALK, tempMessage )
 						end
 						
+						ent:KillVelocity()
 						ent:Remove()
 					elseif ( velo >= FreezeSpeed ) then
-						ent:CollisionRulesChanged()
 						nick = ent:GetNWString( nickString, ent:GetClass() )
-						KillVelocity( ent )
+						ent:KillVelocity()
+						timer.Simple( FreezeTime, function() ent:EnableVelocity() end )
 						
 						tempMessage = string.format( rMessage, nick, ent:EntIndex() )
 						ServerLog( tempMessage .. string.format( veloMessage, velo ) )
