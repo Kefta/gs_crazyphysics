@@ -1,3 +1,7 @@
+This script is now useless! Please use the ConVars in the post below
+===================================================================
+https://facepunch.com/showthread.php?t=1508156&p=49825601&viewfull=1#post49825601
+
 Entity Crash Catcher
 ===============
 
