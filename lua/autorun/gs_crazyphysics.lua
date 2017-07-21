@@ -217,6 +217,10 @@ end
 local flNextCheck = 0
 
 hook.Add("Think", "GS_CrazyPhysics", function()
+	if (not gs_crazyphysics:GetBool()) then
+		return
+	end
+	
 	local flCurTime = CurTime()
 	
 	if (flNextCheck > flCurTime) then
