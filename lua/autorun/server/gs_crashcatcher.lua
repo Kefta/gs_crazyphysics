@@ -1,19 +1,8 @@
--- https://facepunch.com/showthread.php?t=1508156&p=49825601&viewfull=1#post49825601
---[[
-
-
-This script is now useless! Please use the ConVars in the post above instead.
-
-
-]]--
-
 -- Entity Crash Catcher
 -- This script detects entities that are moving too fast or falling out of the world, leading to a potential server crash
 -- By code_gs, Ambro, DarthTealc, TheEMP, and LuaTenshi
 -- GitHub: https://github.com/Kefta/Entity-Crash-Catcher
 -- Facepunch: http://facepunch.com/showthread.php?t=1347114
-ErrorNoHalt( "Please read the crash catcher lua file -- this script is now useless" )
-if ( true or CLIENT ) then return end -- Fool proof
 
 -- Config
 local EchoFreeze	= false		-- Tell players when an entity is frozen
