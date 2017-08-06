@@ -230,7 +230,7 @@ function util.IsReasonable( struct )
 	--if ( isvector( struct ) ) then
 		if( struct.x >= MAX_REASONABLE_COORD or struct.x <= MIN_REASONABLE_COORD or 
 			struct.y >= MAX_REASONABLE_COORD or struct.y <= MIN_REASONABLE_COORD or 
-			struct.z >= MAX_REASONABLE_COORD or struct.y <= MIN_REASONABLE_COORD ) then
+			struct.z >= MAX_REASONABLE_COORD or struct.z <= MIN_REASONABLE_COORD ) then
 			return false
 		end
 	--[[elseif ( isangle( struct ) ) then
