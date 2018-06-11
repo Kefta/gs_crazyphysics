@@ -22,6 +22,6 @@ By default, the script only checks prop_ragdoll entities. To add more entity cla
 * TheEMP - Fixed TTT body identification
 * LuaTenshi - Better TTT check and misc fixes
 
-Facepunch: http://facepunch.com/showthread.php?t=1347114
+Facepunch: https://gmod.facepunch.com/f/gmodaddon/jjec/Entity-Crash-Catcher/1/
 
 GitHub: https://github.com/Kefta/Entity-Crash-Catcher
