@@ -85,7 +85,7 @@ util.AddNetworkString("GS_CrazyPhysics_Remove_Object")
 local iEntityLen = #tEntitiesToCheck
 
 local function SetAbsVelocity(pEntity, vAbsVelocity)
-	if (pEntity:GetSaveTable()["m_vecAbsVelocity"] ~= vAbsVelocity) then
+	if (pEntity:GetInternalVariable("m_vecAbsVelocity") ~= vAbsVelocity) then
 		// The abs velocity won't be dirty since we're setting it here
 		pEntity:RemoveEFlags(EFL_DIRTY_ABSVELOCITY)
 
